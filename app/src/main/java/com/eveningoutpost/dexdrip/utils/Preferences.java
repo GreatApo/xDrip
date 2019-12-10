@@ -16,6 +16,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
@@ -1149,7 +1150,6 @@ public class Preferences extends BasePreferenceActivity implements SearchPrefere
             final Preference enableBF = findPreference("enable_bugfender");
             final PreferenceCategory displayCategory = (PreferenceCategory) findPreference("xdrip_plus_display_category");
 
-
             lockListener.setSummaryPreference(findPreference("pick_numberwall_start"));
 
             final Preference enableAmazfit = findPreference("pref_amazfit_enable_key");
@@ -1158,11 +1158,17 @@ public class Preferences extends BasePreferenceActivity implements SearchPrefere
             enableAmazfit.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                @Override
                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                  final Context context = preference.getContext();
+                  final Context context = preference.getContext().getApplicationContext();
                   Boolean enabled = (boolean) newValue;
-                   if (enabled==true) {
+                   if (enabled) {
                        context.startService(new Intent(context, Amazfitservice.class));
-
+                       new Handler().postDelayed(new Runnable() {
+                             @Override
+                             public void run() {
+                                 Amazfitservice.checkConnection();
+                             }
+                         },
+                       5*1000);
                    }else {
                        context.stopService(new Intent(context, Amazfitservice.class));
                    }
